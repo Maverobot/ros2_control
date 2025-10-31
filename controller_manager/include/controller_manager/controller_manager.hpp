@@ -57,7 +57,7 @@ using ControllersListIterator = std::vector<controller_manager::ControllerSpec>:
 
 rclcpp::NodeOptions get_cm_node_options();
 
-class ControllerManager : public rclcpp::Node
+class ControllerManager : public rclcpp_lifecycle::LifecycleNode
 {
 public:
   static constexpr bool kWaitForAllResources = false;

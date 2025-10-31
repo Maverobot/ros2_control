@@ -83,7 +83,7 @@ public:
     update_executor_ =
       std::make_shared<rclcpp::executors::MultiThreadedExecutor>(rclcpp::ExecutorOptions(), 2);
 
-    update_executor_->add_node(cm_);
+    update_executor_->add_node(cm_->get_node_base_interface());
     update_executor_spin_future_ =
       std::async(std::launch::async, [this]() -> void { update_executor_->spin(); });
     // This sleep is needed to prevent a too fast test from ending before the
@@ -151,10 +151,9 @@ public:
   : ControllerManagerFixture<controller_manager::ControllerManager>(""),
     RMServiceCaller(TEST_CM_NAME)
   {
-    cm_->set_parameter(
-      rclcpp::Parameter(
-        "hardware_components_initial_state.unconfigured",
-        std::vector<std::string>{"TestSystemHardware"}));
+    cm_->set_parameter(rclcpp::Parameter(
+      "hardware_components_initial_state.unconfigured",
+      std::vector<std::string>{"TestSystemHardware"}));
   }
 
 public:
@@ -174,7 +173,7 @@ public:
     update_executor_ =
       std::make_shared<rclcpp::executors::MultiThreadedExecutor>(rclcpp::ExecutorOptions(), 2);
 
-    update_executor_->add_node(cm_);
+    update_executor_->add_node(cm_->get_node_base_interface());
     update_executor_spin_future_ =
       std::async(std::launch::async, [this]() -> void { update_executor_->spin(); });
     // This sleep is needed to prevent a too fast test from ending before the
@@ -247,7 +246,7 @@ public:
     update_executor_ =
       std::make_shared<rclcpp::executors::MultiThreadedExecutor>(rclcpp::ExecutorOptions(), 2);
 
-    update_executor_->add_node(cm_);
+    update_executor_->add_node(cm_->get_node_base_interface());
     update_executor_spin_future_ =
       std::async(std::launch::async, [this]() -> void { update_executor_->spin(); });
     // This sleep is needed to prevent a too fast test from ending before the
@@ -272,9 +271,8 @@ TEST_F(TestHardwareSpawnerWithNamespacedCM, set_component_to_configured_state_cm
     256)
     << "Should fail without defining the namespace";
   EXPECT_EQ(
-    call_spawner(
-      "TestSystemHardware --configure -c test_controller_manager --ros-args -r "
-      "__ns:=/foo_namespace"),
+    call_spawner("TestSystemHardware --configure -c test_controller_manager --ros-args -r "
+                 "__ns:=/foo_namespace"),
     0);
 
   EXPECT_EQ(

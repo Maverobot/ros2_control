@@ -48,7 +48,7 @@ public:
     update_executor_ =
       std::make_shared<rclcpp::executors::MultiThreadedExecutor>(rclcpp::ExecutorOptions(), 2);
 
-    update_executor_->add_node(cm_);
+    update_executor_->add_node(cm_->get_node_base_interface());
     update_executor_spin_future_ =
       std::async(std::launch::async, [this]() -> void { update_executor_->spin(); });
     // This sleep is needed to prevent a too fast test from ending before the
@@ -289,9 +289,8 @@ TEST_F(TestLoadController, spawner_test_with_params_file_string_parameter)
   const std::string test_file_path =
     std::string(PARAMETERS_FILE_PATH) + std::string("test_controller_spawner_with_type.yaml");
 
-  cm_->set_parameter(
-    rclcpp::Parameter(
-      "ctrl_with_parameters_and_type.type", test_controller::TEST_CONTROLLER_CLASS_NAME));
+  cm_->set_parameter(rclcpp::Parameter(
+    "ctrl_with_parameters_and_type.type", test_controller::TEST_CONTROLLER_CLASS_NAME));
   cm_->set_parameter(
     rclcpp::Parameter("ctrl_with_parameters_and_type.params_file", test_file_path));
 
@@ -811,10 +810,9 @@ TEST_F(TestLoadController, test_spawner_parsed_controller_ros_args)
 
   // Now test the remapping of the service name with the controller_ros_args
   EXPECT_EQ(
-    call_spawner(
-      "ctrl_2 -c test_controller_manager --controller-ros-args '-r "
-      "/ctrl_2/set_bool:=/set_bool' --controller-ros-args '--param "
-      "run_cycle:=20 -p test_cycle:=-11.0'"),
+    call_spawner("ctrl_2 -c test_controller_manager --controller-ros-args '-r "
+                 "/ctrl_2/set_bool:=/set_bool' --controller-ros-args '--param "
+                 "run_cycle:=20 -p test_cycle:=-11.0'"),
     0);
 
   ASSERT_EQ(cm_->get_loaded_controllers().size(), 2ul);
@@ -868,7 +866,7 @@ public:
     update_executor_ =
       std::make_shared<rclcpp::executors::MultiThreadedExecutor>(rclcpp::ExecutorOptions(), 2);
 
-    update_executor_->add_node(cm_);
+    update_executor_->add_node(cm_->get_node_base_interface());
     update_executor_spin_future_ =
       std::async(std::launch::async, [this]() -> void { update_executor_->spin(); });
 
@@ -951,7 +949,7 @@ public:
     update_executor_ =
       std::make_shared<rclcpp::executors::MultiThreadedExecutor>(rclcpp::ExecutorOptions(), 2);
 
-    update_executor_->add_node(cm_);
+    update_executor_->add_node(cm_->get_node_base_interface());
     update_executor_spin_future_ =
       std::async(std::launch::async, [this]() -> void { update_executor_->spin(); });
 
@@ -1068,9 +1066,8 @@ TEST_F(TestLoadControllerWithNamespacedCM, multi_ctrls_test_type_in_param)
   EXPECT_EQ(call_unspawner("ctrl_1 ctrl_2 ctrl_3 -c /foo_namespace/test_controller_manager"), 0);
   ASSERT_EQ(cm_->get_loaded_controllers().size(), 0ul) << "Controller should have been unloaded";
   EXPECT_EQ(
-    call_spawner(
-      "ctrl_1 ctrl_2 ctrl_3 -c test_controller_manager --activate-as-group --ros-args "
-      "-r __ns:=/foo_namespace"),
+    call_spawner("ctrl_1 ctrl_2 ctrl_3 -c test_controller_manager --activate-as-group --ros-args "
+                 "-r __ns:=/foo_namespace"),
     0);
   ASSERT_EQ(cm_->get_loaded_controllers().size(), 3ul) << "Controller should have been loaded";
   {

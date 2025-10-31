@@ -447,12 +447,11 @@ ControllerManager::ControllerManager(
   std::shared_ptr<rclcpp::Executor> executor, const std::string & urdf,
   bool activate_all_hw_components, const std::string & manager_node_name,
   const std::string & node_namespace, const rclcpp::NodeOptions & options)
-: rclcpp::Node(manager_node_name, node_namespace, options),
+: rclcpp_lifecycle::LifecycleNode(manager_node_name, node_namespace, options),
   diagnostics_updater_(this),
   executor_(executor),
-  loader_(
-    std::make_shared<pluginlib::ClassLoader<controller_interface::ControllerInterface>>(
-      kControllerInterfaceNamespace, kControllerInterfaceClassName)),
+  loader_(std::make_shared<pluginlib::ClassLoader<controller_interface::ControllerInterface>>(
+    kControllerInterfaceNamespace, kControllerInterfaceClassName)),
   chainable_loader_(
     std::make_shared<pluginlib::ClassLoader<controller_interface::ChainableControllerInterface>>(
       kControllerInterfaceNamespace, kChainableControllerInterfaceClassName)),
@@ -481,13 +480,12 @@ ControllerManager::ControllerManager(
   std::unique_ptr<hardware_interface::ResourceManager> resource_manager,
   std::shared_ptr<rclcpp::Executor> executor, const std::string & manager_node_name,
   const std::string & node_namespace, const rclcpp::NodeOptions & options)
-: rclcpp::Node(manager_node_name, node_namespace, options),
+: rclcpp_lifecycle::LifecycleNode(manager_node_name, node_namespace, options),
   resource_manager_(std::move(resource_manager)),
   diagnostics_updater_(this),
   executor_(executor),
-  loader_(
-    std::make_shared<pluginlib::ClassLoader<controller_interface::ControllerInterface>>(
-      kControllerInterfaceNamespace, kControllerInterfaceClassName)),
+  loader_(std::make_shared<pluginlib::ClassLoader<controller_interface::ControllerInterface>>(
+    kControllerInterfaceNamespace, kControllerInterfaceClassName)),
   chainable_loader_(
     std::make_shared<pluginlib::ClassLoader<controller_interface::ChainableControllerInterface>>(
       kControllerInterfaceNamespace, kChainableControllerInterfaceClassName)),
@@ -739,10 +737,9 @@ void ControllerManager::init_resource_manager(const std::string & robot_descript
         {
           if (params_->hardware_components_initial_state.shutdown_on_initial_state_failure)
           {
-            throw std::runtime_error(
-              fmt::format(
-                FMT_COMPILE("Failed to set the initial state of the component : {} to {}"),
-                component.c_str(), state.label()));
+            throw std::runtime_error(fmt::format(
+              FMT_COMPILE("Failed to set the initial state of the component : {} to {}"),
+              component.c_str(), state.label()));
           }
           else
           {
@@ -784,10 +781,9 @@ void ControllerManager::init_resource_manager(const std::string & robot_descript
     {
       if (params_->hardware_components_initial_state.shutdown_on_initial_state_failure)
       {
-        throw std::runtime_error(
-          fmt::format(
-            FMT_COMPILE("Failed to set the initial state of the component : {} to {}"),
-            component.c_str(), active_state.label()));
+        throw std::runtime_error(fmt::format(
+          FMT_COMPILE("Failed to set the initial state of the component : {} to {}"),
+          component.c_str(), active_state.label()));
       }
       else
       {
@@ -3952,9 +3948,8 @@ controller_interface::return_type ControllerManager::check_for_interfaces_availa
       if (!resource_manager_->command_interface_is_available(cmd_itf))
       {
         message = fmt::format(
-          FMT_COMPILE(
-            "Unable to activate controller '{}' since the "
-            "command interface '{}' is not available."),
+          FMT_COMPILE("Unable to activate controller '{}' since the "
+                      "command interface '{}' is not available."),
           controller_it->info.name, cmd_itf);
         RCLCPP_WARN(get_logger(), "%s", message.c_str());
         return controller_interface::return_type::ERROR;

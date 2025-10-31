@@ -196,7 +196,7 @@ public:
         }
       });
 
-    executor_->add_node(cm_);
+    executor_->add_node(cm_->get_node_base_interface());
 
     executor_spin_future_ = std::async(std::launch::async, [this]() -> void { executor_->spin(); });
     // This sleep is needed to prevent a too fast test from ending before the
