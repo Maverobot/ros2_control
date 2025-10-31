@@ -473,7 +473,6 @@ ControllerManager::ControllerManager(
     params_->defaults.deactivate_controllers_on_hardware_self_deactivate;
   resource_manager_ =
     std::make_unique<hardware_interface::ResourceManager>(params, !robot_description_.empty());
-  init_controller_manager();
 }
 
 ControllerManager::ControllerManager(
@@ -493,7 +492,6 @@ ControllerManager::ControllerManager(
   robot_description_(resource_manager_->get_robot_description())
 {
   initialize_parameters();
-  init_controller_manager();
 }
 
 ControllerManager::~ControllerManager()
@@ -505,6 +503,20 @@ ControllerManager::~ControllerManager()
     context->remove_pre_shutdown_callback(*(preshutdown_cb_handle_.get()));
     preshutdown_cb_handle_.reset();
   }
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+ControllerManager::on_activate(const rclcpp_lifecycle::State & /* previous_state */)
+{
+  init_controller_manager();
+  return CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+ControllerManager::on_shutdown(const rclcpp_lifecycle::State & /* previous_state */)
+{
+  // TODO: to be implemented
+  return CallbackReturn::SUCCESS;
 }
 
 bool ControllerManager::shutdown_controllers()
@@ -656,7 +668,6 @@ void ControllerManager::initialize_parameters()
     RCLCPP_ERROR(
       this->get_logger(),
       "Exception thrown while initializing controller manager parameters: %s \n", e.what());
-    throw e;
   }
 }
 

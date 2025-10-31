@@ -337,8 +337,17 @@ private:
   std::vector<std::string> get_controller_names();
   std::pair<std::string, std::string> split_command_interface(
     const std::string & command_interface);
-  void init_controller_manager();
 
+  RCLCPP_LIFECYCLE_PUBLIC
+  virtual CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state);
+
+  RCLCPP_LIFECYCLE_PUBLIC
+  virtual CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state);
+
+  RCLCPP_LIFECYCLE_PUBLIC
+  virtual CallbackReturn on_shutdown(const rclcpp_lifecycle::State & previous_state);
+
+  void init_controller_manager();
   void initialize_parameters();
 
   /**
